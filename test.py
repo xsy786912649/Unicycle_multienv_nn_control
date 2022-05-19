@@ -10,8 +10,8 @@ params = get_parameters()
 model= torch.load("control1.pkl")
 
 GUI = True
-random_seed = 10 #
-numEnvs = 100 # Number of environments to show videos for
+random_seed = 1213 #
+numEnvs = 1000 # Number of environments to show videos for
 numEnvs1=100
 
 husky, sphere, numRays, thetas_nominal,robotRadius=setup_pybullet(False, params)

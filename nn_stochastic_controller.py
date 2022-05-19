@@ -16,27 +16,37 @@ class nn_stochastic_controller(torch.nn.Module):
         self.u_diff_max = 0.5*(self.v0/self.r) 
         self.numRays=numRays
         self.params = [
-                    torch.Tensor(1, self.numRays).uniform_(-0.1,0.1),
-                    #torch.Tensor(64).zero_(),
+                    torch.Tensor(20, self.numRays).uniform_(-0.1/5,0.1/5),
+                    torch.Tensor(20).zero_(),
 
                     #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
                     #torch.Tensor(64).zero_(),
 
-                    #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
+                    torch.Tensor(1, 20).uniform_(-0.1/5,0.1/5),
+                    torch.Tensor(1).zero_(),
+                ]
+
+        self.params2 = [
+                    torch.Tensor(20, self.numRays).uniform_(0.08/5, 0.1/5),
+                    torch.Tensor(20).uniform_(0.08/5, 0.1/5),
+
+                    #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
+                    #torch.Tensor(64).zero_(),
+
+                    torch.Tensor(1, 20).uniform_(0.08/5, 0.1/5),
+                    torch.Tensor(1).uniform_(0.08/5, 0.1/5),
+                ]
+        """
+        self.params = [
+                    torch.Tensor(1, self.numRays).uniform_(-0.1,0.1),
                     torch.Tensor(1).zero_(),
                 ]
 
         self.params2 = [
                     torch.Tensor(1, self.numRays).uniform_(0.08, 0.1),
-                    #torch.Tensor(64).zero_(),
-
-                    #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    #torch.Tensor(64).zero_(),
-
-                    #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
                     torch.Tensor(1).uniform_(0.08, 0.1),
                 ]
-
+        """
         self.random_parameter_posi=[
                 ]
 
@@ -91,9 +101,9 @@ class nn_stochastic_controller(torch.nn.Module):
 
     def dense(self, x, params):
         x = F.linear(x, params[0], params[1])
-        #x = F.relu(x)
+        x = F.relu(x)
 
-        #x = F.linear(x, params[2], params[3])
+        x = F.linear(x, params[2], params[3])
         #x = F.relu(x)
 
         #x = F.linear(x, params[2], params[3])

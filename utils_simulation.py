@@ -15,7 +15,7 @@ def get_parameters():
     params['robotHeight'] = 0.15/2 # rough height of COM of robot
     params['th_min'] = -np.pi/3 # sensing angle minimum 
     params['th_max'] = np.pi/3 # sensing angle maximum
-    params['T_horizon'] = 120 # time horizon over which to evaluate everything   
+    params['T_horizon'] = 100 # time horizon over which to evaluate everything   
     
     # precompute vector of angles for sensor
     params['thetas_nominal'] = np.reshape(np.linspace(params['th_min'], params['th_max'], params['numRays']), (params['numRays'],1))

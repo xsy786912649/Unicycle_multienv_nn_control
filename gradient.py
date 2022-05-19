@@ -56,7 +56,7 @@ def compute_gradient(n_E,params, husky, sphere,controller,popula=30):
     Q_negtive=0
     grad1_list=[]
     grad2_list=[]
-    q=0.0
+    #q=0.0
     for i in range(popula):
         seed_i=index[i]
         controller.set_random_para(seed_i)
@@ -65,14 +65,14 @@ def compute_gradient(n_E,params, husky, sphere,controller,popula=30):
         grad1,grad2= controller.compute_gradient(Q_positive,Q_negtive)
         grad1_list.append(grad1)
         grad2_list.append(grad2)
-        q=q+Q_positive+Q_negtive
+        #q=q+Q_positive+Q_negtive
     
     grad1_fin=averge_gra(grad1_list)
     grad2_fin=averge_gra(grad2_list)
     #print(grad1_fin)
     #print(grad2_fin)
-    print(controller.params)
-    print(controller.params2)
+    #print(controller.params)
+    #print(controller.params2)
     controller.update(grad1_fin,grad2_fin)
     #print(q/2.0/popula)
     return 
