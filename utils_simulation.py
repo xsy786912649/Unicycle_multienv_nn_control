@@ -15,7 +15,7 @@ def get_parameters():
     params['robotHeight'] = 0.15/2 # rough height of COM of robot
     params['th_min'] = -np.pi/3 # sensing angle minimum 
     params['th_max'] = np.pi/3 # sensing angle maximum
-    params['T_horizon'] = 100 # time horizon over which to evaluate everything   
+    params['T_horizon'] = 120 # time horizon over which to evaluate everything   
     
     # precompute vector of angles for sensor
     params['thetas_nominal'] = np.reshape(np.linspace(params['th_min'], params['th_max'], params['numRays']), (params['numRays'],1))
@@ -64,7 +64,7 @@ def generate_obstacles(p, heightObs, robotRadius):
     x_lim = [-5.0, 5.0]
     y_lim = [0.0, 10.0]
         
-    numObs = 10+np.random.randint(0,11) # 30 
+    numObs = 15+np.random.randint(0,11) # 30 
     # radiusObs = 0.15
     massObs = 0
     visualShapeId = -1
@@ -320,6 +320,7 @@ def environment_costs(numEnvs, controller, params, husky, sphere, GUI, seed, mod
             # See if the robot is in collision. If so, cost = 1.0. 
             if closestPoints: # Check if closestPoints is non-empty 
                 success_env = 1.0
+                cost_env_l+=0.1
                 break
         
         # Check that cost is between 0 and 1 (for sanity)
@@ -398,6 +399,7 @@ def single_environment_cost(controller, params, husky, sphere, GUI, seed, mode=0
         # See if the robot is in collision. If so, cost = 1.0. 
         mindis_cost=(-np.min(np.array(y)[0])/5.0+1.0)/5.0
         if closestPoints: # Check if closestPoints is non-empty 
+            cost_env_l+=0.1
             break
     
     # Check that cost is between 0 and 1 (for sanity)
@@ -485,7 +487,7 @@ def simulate_controller(numEnvs, controller, params, husky, sphere, GUI, seed, m
             # See if the robot is in collision. If so, cost = 1.0. 
             if closestPoints: # Check if closestPoints is non-empty 
                 print("collision")
-                
+                cost_env_l+=0.1
                 break 
 
         cost_env_l =max(cost_env_l,0)

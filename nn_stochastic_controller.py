@@ -27,14 +27,14 @@ class nn_stochastic_controller(torch.nn.Module):
                 ]
 
         self.params2 = [
-                    torch.Tensor(1, self.numRays).uniform_(0.05, 0.1),
+                    torch.Tensor(1, self.numRays).uniform_(0.08, 0.1),
                     #torch.Tensor(64).zero_(),
 
                     #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
                     #torch.Tensor(64).zero_(),
 
                     #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    torch.Tensor(1).uniform_(0.05, 0.1),
+                    torch.Tensor(1).uniform_(0.08, 0.1),
                 ]
 
         self.random_parameter_posi=[
