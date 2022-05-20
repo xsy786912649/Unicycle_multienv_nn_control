@@ -15,6 +15,7 @@ class nn_stochastic_controller(torch.nn.Module):
         self.v0 = 2.5
         self.u_diff_max = 0.5*(self.v0/self.r) 
         self.numRays=numRays
+        """
         self.params = [
                     torch.Tensor(20, self.numRays).uniform_(-0.1/5,0.1/5),
                     torch.Tensor(20).zero_(),
@@ -46,7 +47,7 @@ class nn_stochastic_controller(torch.nn.Module):
                     torch.Tensor(1, self.numRays).uniform_(0.08, 0.1),
                     torch.Tensor(1).uniform_(0.08, 0.1),
                 ]
-        """
+        
         self.random_parameter_posi=[
                 ]
 
@@ -101,9 +102,9 @@ class nn_stochastic_controller(torch.nn.Module):
 
     def dense(self, x, params):
         x = F.linear(x, params[0], params[1])
-        x = F.relu(x)
+        #x = F.relu(x)
 
-        x = F.linear(x, params[2], params[3])
+        #x = F.linear(x, params[2], params[3])
         #x = F.relu(x)
 
         #x = F.linear(x, params[2], params[3])
@@ -180,6 +181,7 @@ class nn_stochastic_controller(torch.nn.Module):
         beta_2=0.999
         ep=0.000001
         lr= 0.001
+        lr2= 0.0003
 
         self.m=[a_i*beta_1+(1-beta_1)*b_i for a_i, b_i in zip(self.m, grd1) ]
 
@@ -200,7 +202,7 @@ class nn_stochastic_controller(torch.nn.Module):
         hm=[a_i/(1-(beta_1**self.t)) for a_i in self.m2]
         hu=[a_i/(1-(beta_2**self.t)) for a_i in self.u2]
 
-        dws_new=[lr * a_i /(ep + torch.sqrt(b_i)) for a_i, b_i in zip(hm, hu)]
+        dws_new=[lr2 * a_i /(ep + torch.sqrt(b_i)) for a_i, b_i in zip(hm, hu)]
 
         params2 = [a_i - b_i for a_i, b_i in zip(self.params2, dws_new)]
         self.params2=params2

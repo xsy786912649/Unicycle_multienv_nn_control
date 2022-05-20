@@ -10,19 +10,20 @@ params = get_parameters()
 model= torch.load("control1.pkl")
 
 GUI = True
-random_seed = 1213 #
+random_seed = 100#
 numEnvs = 1000 # Number of environments to show videos for
 numEnvs1=100
 
 husky, sphere, numRays, thetas_nominal,robotRadius=setup_pybullet(False, params)
-cost, fail_rate=environment_costs(numEnvs, model, params, husky, sphere, False, random_seed,1)
+cost, fail_rate=environment_costs(numEnvs, model, params, husky, sphere, False, random_seed)
+print("----------------------------")
 print("fail_rate: ", fail_rate)
 print("cost: ", cost)
 pybullet.disconnect()
 
 husky, sphere, numRays, thetas_nominal,robotRadius=setup_pybullet(GUI, params)
 print("Simulating optimized controller in a few environments...")
-simulate_controller(numEnvs1, model, params, husky, sphere, GUI, random_seed,1)
+simulate_controller(numEnvs1, model, params, husky, sphere, GUI, random_seed)
 pybullet.disconnect()
 print("Done.")
 

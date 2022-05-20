@@ -1,8 +1,8 @@
 import numpy as np
 import pybullet as pybullet
 import time
-import copy
-import torch
+from wind import *
+
 # Helper functions for setting up obstacle environments, simulating dynamics, etc.
 
 # Parameters
@@ -15,12 +15,13 @@ def get_parameters():
     params['robotHeight'] = 0.15/2 # rough height of COM of robot
     params['th_min'] = -np.pi/3 # sensing angle minimum 
     params['th_max'] = np.pi/3 # sensing angle maximum
-    params['T_horizon'] = 100 # time horizon over which to evaluate everything   
+    params['T_horizon'] = 150 # time horizon over which to evaluate everything   
     
     # precompute vector of angles for sensor
     params['thetas_nominal'] = np.reshape(np.linspace(params['th_min'], params['th_max'], params['numRays']), (params['numRays'],1))
     
     return params 
+
 
 # Robot dynamics
 def robot_update_state(state, u_diff):
@@ -50,9 +51,12 @@ def robot_update_state(state, u_diff):
     
     ul = v0/r - u_diff
     ur = v0/r + u_diff
-    
+
+    #d=wind(state[0],state[1])
+    d=np.random.uniform(-0.2,0.2)
+
     new_state = [0.0, 0.0, 0.0]
-    new_state[0] = state[0] + dt*(-(r/2)*(ul + ur)*np.sin(state[2])) # x position
+    new_state[0] = state[0] + dt*(-(r/2)*(ul + ur)*np.sin(state[2])+d) # x position
     new_state[1] = state[1] + dt*((r/2)*(ul + ur)*np.cos(state[2])) # y position
     new_state[2] = state[2] + dt*((r/L)*(ur - ul))
     
@@ -184,7 +188,7 @@ def environment_fail_rate(numEnvs, controller, params, husky, sphere, GUI, seed,
     for env in range(0,numEnvs):
                 
         # Print
-        if (env%10 == 0) and (env>0):
+        if (env%100 == 0) and (env>0):
             print(env, "out of", numEnvs)
     
         # Sample environment
@@ -232,6 +236,8 @@ def environment_fail_rate(numEnvs, controller, params, husky, sphere, GUI, seed,
                 cost_env_l = 1.0
                 break 
 
+            if state[1]>10.1:
+                break
         
         # Check that cost is between 0 and 1 (for sanity)
         if (cost_env_l > 1.0):
@@ -267,9 +273,8 @@ def environment_costs(numEnvs, controller, params, husky, sphere, GUI, seed, mod
     
     for env in range(0, numEnvs):
                 
-        # Print
-        #if (env%10 == 0) and (env>0):
-        #    print(env, "out of", numEnvs)
+        if (env%100 == 0) and (env>0):
+            print(env, "out of", numEnvs)
     
         # Sample environment
         heightObs = 20*robotHeight
@@ -322,6 +327,9 @@ def environment_costs(numEnvs, controller, params, husky, sphere, GUI, seed, mod
                 success_env = 1.0
                 cost_env_l+=0.1
                 break
+
+            if state[1]>10.1:
+                break
         
         # Check that cost is between 0 and 1 (for sanity)
         if (cost_env_l > 2.0):
@@ -336,85 +344,6 @@ def environment_costs(numEnvs, controller, params, husky, sphere, GUI, seed, mod
 
     return np.average(costs,axis=None), np.average(success,axis=None)
 
-
-def single_environment_cost(controller, params, husky, sphere, GUI, seed, mode=0):
-    
-    # Parameters
-    numRays = params['numRays']
-    senseRadius = params['senseRadius']   
-    robotRadius = params['robotRadius']
-    robotHeight = params['robotHeight']
-    thetas_nominal = params['thetas_nominal']
-    T_horizon = params['T_horizon']
-    
-    # Fix random seed for consistency of results
-    np.random.seed(seed)
-    
-    # Initialize costs for the different environments and different controllers
-    costs = 0
-    
-    # Sample environment
-    heightObs = 20*robotHeight
-    obsUid = generate_obstacles(pybullet, heightObs, robotRadius)  
-
-    # Initialize position of robot
-    state = [0.0, 1.0, 0.0] # [x, y, theta] 
-    quat = pybullet.getQuaternionFromEuler([0.0, 0.0, state[2]+np.pi/2]) # pi/2 since Husky visualization is rotated by pi/2
-
-    pybullet.resetBasePositionAndOrientation(husky, [state[0], state[1], 0.0], quat)
-    pybullet.resetBasePositionAndOrientation(sphere, [state[0], state[1], robotHeight], [0,0,0,1])        
-
-    # Cost for this particular controller (lth controller) in this environment
-    cost_env_l = 1.0
-
-    for t in range(0, T_horizon):
-
-        # Get sensor measurement
-        y = getDistances(pybullet, state, robotHeight, numRays, senseRadius, thetas_nominal)
-
-        # Compute control input
-        u = controller.predict(y,mode)
-
-        # Update state
-        state = robot_update_state(state, u)
-        
-
-        # Update position of pybullet object
-        quat = pybullet.getQuaternionFromEuler([0.0, 0.0, state[2]+np.pi/2]) # pi/2 since Husky visualization is rotated by pi/2
-        pybullet.resetBasePositionAndOrientation(husky, [state[0], state[1], 0.0], quat)
-        pybullet.resetBasePositionAndOrientation(sphere, [state[0], state[1], robotHeight], [0,0,0,1])    
-
-        if (GUI):
-            pybullet.resetDebugVisualizerCamera(cameraDistance=5.0, cameraYaw=0.0, cameraPitch=-45.0, cameraTargetPosition=[state[0], state[1], 2*robotHeight])
-
-            time.sleep(0.025) 
-
-
-        # Check if the robot is in collision. If so, cost = 1.0.      
-        # Get closest points. Note: Last argument is distance threshold. Since it's set to 0, the function will only return points if the distance is less than zero. So, closestPoints is non-empty iff there is a collision.
-        closestPoints = pybullet.getClosestPoints(sphere, obsUid, 0.0)
-        if (10.0-float(state[1]))/10.0< cost_env_l:
-            cost_env_l = (10.0-float(state[1]))/10.0
-        #mindis_cost=0
-        # See if the robot is in collision. If so, cost = 1.0. 
-        mindis_cost=(-np.min(np.array(y)[0])/5.0+1.0)/5.0
-        if closestPoints: # Check if closestPoints is non-empty 
-            cost_env_l+=0.1
-            break
-    
-    # Check that cost is between 0 and 1 (for sanity)
-    if (cost_env_l > 2.0):
-        raise ValueError("Cost is greater than 1!")
-        
-
-    
-    # Record cost for this environment and this controller
-    costs = max(cost_env_l,0)
-        
-    # Remove obstacles
-    pybullet.removeBody(obsUid)
-    
-    return costs
 
 
 
@@ -489,6 +418,8 @@ def simulate_controller(numEnvs, controller, params, husky, sphere, GUI, seed, m
                 print("collision")
                 cost_env_l+=0.1
                 break 
+            if state[1]>10.1:
+                break
 
         cost_env_l =max(cost_env_l,0)
         print(cost_env_l)
