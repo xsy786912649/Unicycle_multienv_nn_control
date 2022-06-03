@@ -10,7 +10,7 @@ GUI = False
 
 # PAC parameters
 env_batch_size = 10 # Number of environments to sample
-env_validation_batch_size = 100
+env_validation_batch_size = 200
 random_seed = 10
 epoch= 200
 
@@ -29,8 +29,6 @@ else:
 for i in range(epoch):
     print("epoch: ", i)
     norm=compute_gradient(env_batch_size,params, husky, sphere, nn_controller)
-    if norm<0.25:
-        break
     if i%5==0 and i>0:
         print("-------------------------------------")
         nn_controller.set_random_para(i)
@@ -43,7 +41,7 @@ for i in range(epoch):
 ################################################################################
 # Estimate true expected cost
 
-numEnvs = 100 # 100000 were used in the paper (here, we're using few environments to speed things up) 
+numEnvs = 1000 # 10000 were used in the paper (here, we're using few environments to speed things up) 
 seed = 100 # Different random seed
 cost, fail_rate_for_test = environment_costs(numEnvs, nn_controller, params, husky, sphere, GUI, seed)
 print("fail_rate_for_test: ", fail_rate_for_test)

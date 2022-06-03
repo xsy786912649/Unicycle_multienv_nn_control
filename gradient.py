@@ -27,7 +27,7 @@ def compute_gradient(n_E, params, husky, sphere,controller,popula=30):
     grad1_fin=averge_gra(grad1_list)
     grad2_fin=averge_gra(grad2_list)
     norm=tensor_norm_more(grad1_fin)/2
-    print("norm1: " +str(norm))
+    #print("norm1: " +str(norm))
     #print("norm2: " +str(tensor_norm_more(grad2_fin)/2))
     '''
     print("-------------------------------------")
