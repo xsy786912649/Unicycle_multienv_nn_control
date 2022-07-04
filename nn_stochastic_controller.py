@@ -59,44 +59,49 @@ class nn_stochastic_controller(torch.nn.Module):
 
         self.t=0
 
-        self.m= [   torch.Tensor(1, self.numRays).zero_(),
-                    #torch.Tensor(64).zero_(),
+        self.m= [
+                    torch.Tensor(20, self.numRays).uniform_(-0.1/5,0.1/5),
+                    torch.Tensor(20).zero_(),
 
-                    #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    #torch.Tensor(64).zero_(),
+                    #torch.Tensor(20, 20).uniform_(-0.1/5,0.1/5),
+                    #torch.Tensor(20).zero_(),
 
-                    #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    torch.Tensor(1).zero_(),]
+                    torch.Tensor(1, 20).uniform_(-0.1/5,0.1/5),
+                    torch.Tensor(1).zero_(),
+                ]
 
-        self.u=[    torch.Tensor(1, self.numRays).zero_(),
-                    #torch.Tensor(64).zero_(),
+        self.u=[
+                    torch.Tensor(20, self.numRays).uniform_(-0.1/5,0.1/5),
+                    torch.Tensor(20).zero_(),
 
-                    #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    #torch.Tensor(64).zero_(),
+                    #torch.Tensor(20, 20).uniform_(-0.1/5,0.1/5),
+                    #torch.Tensor(20).zero_(),
 
-                    #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
+                    torch.Tensor(1, 20).uniform_(-0.1/5,0.1/5),
                     torch.Tensor(1).zero_(),
                 ]
 
 
-        self.m2=[    torch.Tensor(1, self.numRays).zero_(),
-                    #torch.Tensor(64).zero_(),
+        self.m2=[
+                    torch.Tensor(20, self.numRays).uniform_(0.08/5, 0.1/5),
+                    torch.Tensor(20).uniform_(0.08/5, 0.1/5),
 
-                    #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    #torch.Tensor(64).zero_(),
+                    #torch.Tensor(20, 20).uniform_(0.08/5, 0.1/5),
+                    #torch.Tensor(20).zero_(),
 
-                    #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    torch.Tensor(1).zero_(),
+                    torch.Tensor(1, 20).uniform_(0.08/5, 0.1/5),
+                    torch.Tensor(1).uniform_(0.08/5, 0.1/5),
                 ]
 
-        self.u2=[    torch.Tensor(1, self.numRays).zero_(),
-                    #torch.Tensor(64).zero_(),
+        self.u2=[
+                    torch.Tensor(20, self.numRays).uniform_(0.08/5, 0.1/5),
+                    torch.Tensor(20).uniform_(0.08/5, 0.1/5),
 
-                    #torch.Tensor(64, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    #torch.Tensor(64).zero_(),
+                    #torch.Tensor(20, 20).uniform_(0.08/5, 0.1/5),
+                    #torch.Tensor(20).zero_(),
 
-                    #torch.Tensor(1, 64).uniform_(-1./math.sqrt(64), 1./math.sqrt(64)),
-                    torch.Tensor(1).zero_(),
+                    torch.Tensor(1, 20).uniform_(0.08/5, 0.1/5),
+                    torch.Tensor(1).uniform_(0.08/5, 0.1/5),
                 ]
                 
 
@@ -113,6 +118,7 @@ class nn_stochastic_controller(torch.nn.Module):
 
     def input_process(self, x):
         return 1.0/(x+0.1)
+        #return x
 
     def set_random_para(self,seed):
         torch.manual_seed(seed)

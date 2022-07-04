@@ -12,7 +12,7 @@ GUI = False
 env_batch_size = 10 # Number of environments to sample
 env_validation_batch_size = 200
 random_seed = 10
-epoch= 200
+epoch= 250
 
 params = get_parameters()
 husky, sphere, numRays, thetas_nominal,robotRadius=setup_pybullet(GUI, params)
@@ -26,7 +26,10 @@ if load_from_file:
 else:
     nn_controller=nn_stochastic_controller(numRays)
 
+fail_rate_store=1
 for i in range(epoch):
+    pybullet.disconnect()
+    husky, sphere, numRays, thetas_nominal,robotRadius=setup_pybullet(GUI, params)
     print("epoch: ", i)
     norm=compute_gradient(env_batch_size,params, husky, sphere, nn_controller)
     if i%5==0 and i>0:
@@ -35,7 +38,9 @@ for i in range(epoch):
         cost, fail_rate=environment_costs(env_validation_batch_size, nn_controller, params, husky, sphere, GUI, random_seed)
         print("fail_rate: ", fail_rate)
         print("cost: ", cost)
-        torch.save(nn_controller,"control1.pkl")
+        if fail_rate<fail_rate_store:
+            fail_rate_store=fail_rate
+            torch.save(nn_controller,"control1.pkl")
         print("-------------------------------------")
 
 ################################################################################
